@@ -17,8 +17,11 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
 import 'Calidad_Curva.dart';
+import 'Calidad_Fin.dart';
+import 'Listado_trabajadores.dart';
+import 'Log_errores.dart';
+import 'main.dart';
 int continuar_auditoria = 0;
-int Cargar_variables_automaticamente = 0;
 class Calidad_Curva extends StatefulWidget {
   const Calidad_Curva({Key? key}) : super(key: key);
 
@@ -32,6 +35,10 @@ class _Calidad_CurvaState extends State<Calidad_Curva> {
   String Hora_actual = "";
   List _listabush = [];
   String vista2 = "Estado";
+  final textcontroller_cambiar_usuario_url = TextEditingController();
+  final textcontroller_resetear_BD = TextEditingController();
+  final textcontrollercodigo_lote = TextEditingController();
+  final textcontrollercodigo = TextEditingController();
 
   TextEditingController detalle_escrito = TextEditingController();
   TextEditingController textcontroller_cant_pallet = TextEditingController();
@@ -44,6 +51,8 @@ class _Calidad_CurvaState extends State<Calidad_Curva> {
     "Inspeccion linea 2",
     "Lavado"
   ];
+  List<Codigo> lista_objetos_codigos = [];
+  List<Persona> objeto_usuario = [];
 
   void initState() {
     dateinput.text = "";
@@ -59,6 +68,58 @@ class _Calidad_CurvaState extends State<Calidad_Curva> {
       appBar: AppBar(
         title: Text("Auditoria"),
         backgroundColor: Colors.black,
+        actions: <Widget>[
+          IconButton(icon: Icon(Icons.arrow_forward, color: Colors.white), onPressed: () async {
+            int resultado = await DB.Obtener_estado_auditoria();
+            if(resultado == 1){
+              print("habia una auditoria activa!");
+            }else{
+              print("No, no habia ninguna auditoria activa!");
+            }
+            int pasa = 1;
+            print("Enviando...");
+            int verificacion = Verificar_capa8();
+            if(verificacion == 1){
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: const Text(
+                      'Seleccione una fecha porfavor!'),
+                ),
+              );
+            }else{
+              pasa = 0;
+            }
+            if(verificacion == 2){
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: const Text(
+                      'Seleccione una cantidad adecuada!'),
+                ),
+              );
+            }else{
+              pasa = 0;
+            }
+            if(verificacion == 3){
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: const Text(
+                      'Complete detalle!'),
+                ),
+              );
+            }else{
+              pasa = 0;
+            }
+            if(pasa != 0){
+              print("Todo bien con los capa 8");
+              //seguir codeando aqui
+            }else{
+              print("No, no va a pasar esto. Esta imcompleto.");
+            }
+            print("Creando Auditoria...");
+            print("Esto es lo que insertaria: "+Hora_actual+ " "+dateinput.text+ " " +cant+ " "+ detalle_escrito.text);
+            DB.insertar_Auditoria(Hora_actual, dateinput.text, cant, detalle_escrito.text);
+          }),
+        ],
       ),
 
       body: Container(
@@ -217,39 +278,130 @@ SizedBox(height: 10),
                   Card(
                       color: Colors.white,
                       child: Padding(
-                        padding: EdgeInsets.all(8.0),
+                        padding: EdgeInsets.all(7.0),
                         child: TextField(
-                          
-                          onTap: Esconder_floating(),
-                          onEditingComplete: Mostrar_floating(),
                           controller: detalle_escrito,
-                          maxLines: 8, //or null
-                          decoration: InputDecoration.collapsed(hintText: "Detalle"),
+                          maxLines: 7, //or null
                         ),
-                      )
+                      ),
                   )
                 ],
               )
             ],
           )
       ),
-      floatingActionButton: new Visibility(
-        visible: alternar_visibilidad,
-        child: new FloatingActionButton(
-          onPressed:() async {
-            print("Creando Auditoria...");
-            print("Esto es lo que insertaria: "+ Hora_actual+ " "+dateinput.text+ " " +cant+ " "+ detalle_escrito.text);
-            //DB.insertar_Auditoria(Hora_actual, dateinput.text, cant, detalle_escrito.text);
-          },
-          backgroundColor: Colors.black,
-          child: const Icon(Icons.arrow_forward),
+      drawer: Drawer(
+        child: Material(
+          color: Colors.black87,
+          child: ListView(
+            children: <Widget>[
+              UserAccountsDrawerHeader(
+                accountName: Text(Usuario_Detectado()),
+                accountEmail: Text(Dato_adicional()),
+                currentAccountPicture: GestureDetector(
+                  child: CircleAvatar(
+                    backgroundImage: AssetImage('images/barcode_scanner.png'),
+                  ),
+                ),
+                decoration: BoxDecoration(
+                    image: DecorationImage(
+                      fit: BoxFit.fill,
+                      image: AssetImage('images/background.png'),
+                    )
+                ),
+              ),
+              const SizedBox(height: 10),
+              buildMenuItem(
+                  text: 'Calidad Curva',
+                  icon: Icons.assignment_turned_in_rounded,
+                  onClicked: () => selectedItem(context,1)
+              ),
+              const SizedBox(height: 5),
+              buildMenuItem(
+                  text: 'Calidad fin',
+                  icon: Icons.assignment_turned_in_outlined,
+                  onClicked: () => selectedItem(context,2)
+              ),
+              const SizedBox(height: 5),
+              buildMenuItem(
+                  text: 'Auditoria',
+                  icon: Icons.zoom_in,
+                  onClicked: () => selectedItem(context,3)
+              ),
+              const SizedBox(height: 5),
+              buildMenuItem(
+                  text: 'Reparación',
+                  icon: Icons.home_repair_service,
+                  onClicked: () => selectedItem(context,4)
+              ),
+              const SizedBox(height: 5),
+              buildMenuItem(
+                  text: 'Trazabilidad',
+                  icon: Icons.graphic_eq,
+                  onClicked: () => selectedItem(context,5)
+              ),
+              const SizedBox(height: 5),
+              buildMenuItem(
+                  text: 'Inventario de Maderas',
+                  icon: Icons.inventory,
+                  onClicked: () => selectedItem(context,6)
+              ),
+              const SizedBox(height: 5),
+              Divider(color: Colors.white70),
+              const SizedBox(height: 5),
+
+              const SizedBox(height: 5),
+              buildMenuItem(
+                  text: 'Log de Escaneos',
+                  icon: Icons.looks,
+                  onClicked: () => selectedItem(context,7)
+              ),
+
+              buildMenuItem(
+                  text: 'Cambiar usuario',
+                  icon: Icons.supervised_user_circle_rounded,
+                  onClicked: () => selectedItem(context,8)
+              ),
+              buildMenuItem(
+                  text: 'Reiniciar BD',
+                  icon: Icons.refresh,
+                  onClicked: () => selectedItem(context,9)
+              ),
+              buildMenuItem(
+                  text: 'Listado de Trabajadores',
+                  icon: Icons.format_align_justify,
+                  onClicked: () => selectedItem(context,10)
+              ),
+              buildMenuItem(
+                  text: 'Cambiar Modo de lectura',
+                  icon: Icons.youtube_searched_for,
+                  onClicked: () => selectedItem(context,11)
+              ),
+              buildMenuItem(
+                  text: 'Log de errores',
+                  icon: Icons.error,
+                  onClicked: () => selectedItem(context,12)
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
+  Verificar_capa8(){
+    if(dateinput.text == ""){
+      return 1;
+    }
+    if(cant == "0"){
+      return 2;
+    }
+    if(detalle_escrito.text == ""){
+      return 3;
+    }
+  }
 
   //inicio de funciones
-  Mostrar_floating(){
+  Mostrar_floating() async {
     print("entro al mostrar");
     setState(() {
       alternar_visibilidad = true;
@@ -263,31 +415,22 @@ SizedBox(height: 10),
       print(
           "fue detectada una auditoria activa, por lo cual se desplegará la notificacion");
       Cuadro_dialogo_existe_auditoria();
-      Cargar_variables_automaticamente = 1;
-      Rellenar_campos();
     } else {
       print(
-          "No existe ninguna auditoria momentanea, por lo cual se creará otra"
+
+          "No existe ninguna auditoria momentanea, por lo cual no pasa nada"
       );
-      Cargar_variables_automaticamente = 0;
-      Rellenar_campos();
     }
   }
   //Cargar_campos_anteriores
-  Esconder_floating(){
+  Esconder_floating() async {
     print("entro al esconder");
     setState(() {
       alternar_visibilidad = false;
     });
   }
-  Rellenar_campos(){
-    //aqui tendrian que rellenarse los campos automaticamente, dependiendo de la variable que cambio en la parte de arriba
-    if(Cargar_variables_automaticamente == 1){
-      //empezar a rellenar campos por nombres, ez
-    }else{
-      print("es totalmente nuevo, no hay nada que cargar");
-    }
-  }
+
+
   cargaCodigos() async {
     print("Actualizando...");
     List<Codigo> auxAnimal = await DB.
@@ -295,23 +438,235 @@ SizedBox(height: 10),
     List<Persona> auxPersona = await DB.
     Mostrar_experimento_user();
     setState(() {
+      lista_objetos_codigos = auxAnimal;
+      objeto_usuario = auxPersona;
       _listabush = json_estado_pallets;
       Hora_actual = DateTime.now().toString().substring(0,19);
     });
 
   }
+  Widget buildMenuItem({
+    required String text,
+    required IconData icon,
+    VoidCallback? onClicked,
+  }){
+    final color = Colors.white;
+    final hoverColor = Colors.white70;
+    return ListTile(
+      leading: Icon(icon, color: color),
+      title: Text(text, style: TextStyle(color: color)),
+      hoverColor: hoverColor,
+      onTap: onClicked,
+    );
+  }
+
+  Future<void> selectedItem(BuildContext context, int index) async {
+    switch (index){
+
+      case 1:
+      //lo que pasa si presionan el botón de auditoria
+      //texto_id_campo = "1";
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Auditoria()));
+        break;
+      case 2:
+      //lo que pasa si presionan el botón de calidad fin
+      //texto_id_campo = "2";
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Calidad_Fin()));
+        break;
+      case 3:
+      //lo que pasa si presionan el botón calidad curva
+      //texto_id_campo = "3";
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Calidad_Curva()));
+        break;
+      case 4:
+      //lo que pasa si presionan el botón reparacion
+      //texto_id_campo = "4";
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const MyHomePage(title: "Sistema Principal")),
+        );
+        break;
+      case 5:
+      //lo que pasa si presionan el botón trazabilidad
+      //texto_id_campo = "5";
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => trazabilidad()));
+        break;
+      case 6:
+      //lo que pasa si presionan el botón Inventario maderas
+      //texto_id_campo = "6";
+        Navigator.pop(context);
+        break;
+      case 7:
+      //esto es el log
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const Log_registros()),
+        );
+        break;
+      case 8:
+      //lo que pasa si presionan el botón Inventario maderas
+      //texto_id_campo = "7";
+      //Navigator.pop(context);
+        print("Hemos cambiado de usuario");
+        showDialog(
+            context: context,
+            builder: (BuildContext context){
+              return AlertDialog(
+                title: Text("¿Cambiar usuario?"),
+                content: TextField(
+                  controller: textcontroller_cambiar_usuario_url,
+                  decoration: const InputDecoration(
+                    hintText: 'Ingrese pass para cambiar de usuario',
+                  ),
+                ),
+                actions: [
+                  ElevatedButton(
+                      onPressed: (){
+                        if(textcontroller_cambiar_usuario_url.text == "123456"){
+                          if(objeto_usuario.isEmpty){
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => const SecondRoute()),
+                            );
+                          }else{
+                            DB.delete(Persona(
+                              cookie: objeto_usuario[0].cookie,
+                              pass: objeto_usuario[0].pass,
+                              usuario: objeto_usuario[0].usuario,
+                            )
+                            );
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => const SecondRoute()),
+                            );
+                          }
+                        }else{
+                          print("noup, no es la pass");
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: const Text(
+                                  'Contraseña incorrecta, vuelva a intentar!'),
+                            ),
+                          );
+                        }
+                      },
+                      child: Text("Confirmar")),
+                  ElevatedButton(
+                      onPressed: (){
+                        Navigator.pop(context);
+                      },
+                      child: Text("Volver"))
+                ],
+              );
+
+            });
+        break;
+      case 9:
+        showDialog(
+            context: context,
+            builder: (BuildContext context){
+              return AlertDialog(
+                title: Text("¿Cambiar usuario?"),
+                content: TextField(
+                  controller: textcontroller_resetear_BD,
+                  decoration: const InputDecoration(
+                    hintText: 'Ingrese pass para reiniciar bd',
+                  ),
+                ),
+                actions: [
+                  ElevatedButton(
+                      onPressed: () async {
+                        if(textcontroller_resetear_BD.text == "vaciar"){
+                          Navigator.pop(context);
+                          await DB.Resetear_BD();
+                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Seleccionar_categoria()));
+                        }else{
+                          print("noup, no es la pass");
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: const Text(
+                                  'Contraseña incorrecta, vuelva a intentar!'),
+                            ),
+                          );
+                        }
+                      },
+                      child: Text("Confirmar")),
+                  ElevatedButton(
+                      onPressed: (){
+                        Navigator.pop(context);
+                      },
+                      child: Text("Volver"))
+                ],
+              );
+
+            });
+        break;
+      case 10:
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Listado_trabajadores_Log()));
+        break;
+
+      case 11:
+        pregunta_lectura == false;
+        if(Modo_lectura_pistola == "Pantalla"){
+          Modo_lectura_pistola = "Pallet";
+        }else{
+          Modo_lectura_pistola = "Pantalla";
+        }
+        showDialog(
+            context: context,
+            builder: (BuildContext context)
+            {
+              return AlertDialog(
+                title: Text("Se ha cambiado el modo lectura!"),
+                content: Text(
+                    "Modo actual: $Modo_lectura_pistola"
+                ),
+                actions: [
+                  ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text("Entendido")),
+                ],
+              );
+
+            });
+        break;
+      case 12:
+        Navigator.push(context, MaterialPageRoute(builder: (context) => Log_registro_errores()));
+    }
+  }
+  Usuario_Detectado(){
+    if(verificador_modo_sin_internet == 1){
+      return "Usuario_offline";
+    }else{
+      var json_usuario = json.decode(Http_prueba);
+      return json_usuario["Configuraciones"][0]["NombreEqupo_S_C_I"];
+    }
+  }
+  Dato_adicional(){
+    if(verificador_modo_sin_internet == 1){
+      return "Modo offline activado";
+    }else{
+      var json_usuario = json.decode(Http_prueba);
+      return json_usuario["Configuraciones"][0]["Serie_S_C_I"];
+    }
+  }
+
   Escanear_lote(){
     showDialog(
         context: context,
         builder: (BuildContext context){
           return AlertDialog(
             title: Text("Ingrese la cantidad de pallets"),
-            content: TextField(
+            content: Container(
+              child: TextField(
               controller: textcontroller_cant_pallet,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
                 hintText: 'Ingrese cantidad',
               ),
+            )
             ),
             actions: [
               ElevatedButton(
@@ -350,8 +705,10 @@ SizedBox(height: 10),
                   },
                   child: Text("Si")),
               ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     continuar_auditoria = 0;
+                    await DB.Eliminar_Auditoria();
+                    Navigator.pop(context);
                   },
                   child: Text("No"))
             ],
