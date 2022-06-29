@@ -16,6 +16,7 @@ import 'package:pickersupp/Log.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
+import 'Auditar_codigos.dart';
 import 'Calidad_Curva.dart';
 import 'Calidad_Fin.dart';
 import 'Listado_trabajadores.dart';
@@ -115,9 +116,11 @@ class _Calidad_CurvaState extends State<Calidad_Curva> {
             }else{
               print("No, no va a pasar esto. Esta imcompleto.");
             }
-            print("Creando Auditoria...");
-            print("Esto es lo que insertaria: "+Hora_actual+ " "+dateinput.text+ " " +cant+ " "+ detalle_escrito.text);
-            DB.insertar_Auditoria(Hora_actual, dateinput.text, cant, detalle_escrito.text);
+            if(verificacion == 0){
+              print("Creando Auditoria...");
+              print("Esto es lo que insertaria: "+Hora_actual+ " "+dateinput.text+ " " +cant+ " "+ detalle_escrito.text);
+              DB.insertar_Auditoria(Hora_actual, dateinput.text, cant, detalle_escrito.text);
+            }
           }),
         ],
       ),
@@ -160,33 +163,7 @@ class _Calidad_CurvaState extends State<Calidad_Curva> {
                       icon: Icon(Icons.arrow_downward_sharp),
                     ),
                   ),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
-                    child: DropdownButton<String>(
-                      items: _listabush.map((data) {
-                        return DropdownMenuItem<String>(
-                          value: data.toString(),
-                          child: Text(
-                            data,
-                          ),
-                        );
-                      }).toList(),
-                      onChanged: (_value)=> {
-                        setState((){
-                          vista2 = _value.toString();
-                        })
-                      },
-                      hint: Text(vista2),
-                      iconEnabledColor: Colors.green,
-                      icon: Icon(Icons.arrow_downward_sharp),
-                    ),
-                  ),
                 ],
-              ),
-              SizedBox(height: 5),
-              Container(
-
               ),
               SizedBox(height: 10),
               Container(
@@ -389,15 +366,25 @@ SizedBox(height: 10),
     );
   }
   Verificar_capa8(){
+    int todobien = 1;
+    if(dateinput.text != "" && cant != "0" && detalle_escrito.text != ""){
+      todobien = 1;
+      return 0;
+    }
     if(dateinput.text == ""){
+      todobien = 0;
       return 1;
     }
     if(cant == "0"){
+      todobien = 0;
       return 2;
     }
     if(detalle_escrito.text == ""){
+      todobien = 0;
       return 3;
     }
+
+
   }
 
   //inicio de funciones
@@ -697,11 +684,14 @@ SizedBox(height: 10),
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text("¿Continuar con Auditoria?"),
+            title: Text("Auditoria activa detectada. ¿Desea continuar esta?"),
             actions: [
               ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     continuar_auditoria = 1;
+                    int imprimir_auditoria = await DB.Obtener_estado_auditoria();
+                    print(imprimir_auditoria);
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => auditar_codigos()));
                   },
                   child: Text("Si")),
               ElevatedButton(
