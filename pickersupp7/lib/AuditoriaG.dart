@@ -119,7 +119,8 @@ class _Calidad_CurvaState extends State<Calidad_Curva> {
             if(verificacion == 0){
               print("Creando Auditoria...");
               print("Esto es lo que insertaria: "+Hora_actual+ " "+dateinput.text+ " " +cant+ " "+ detalle_escrito.text);
-              DB.insertar_Auditoria(Hora_actual, dateinput.text, cant, detalle_escrito.text);
+              await DB.insertar_Auditoria(dateinput.text,"lahoraenlacualpresionaelbotondeterminarenlaotrapagina", cant, detalle_escrito.text);
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => auditar_codigos()));
             }
           }),
         ],
@@ -167,36 +168,6 @@ class _Calidad_CurvaState extends State<Calidad_Curva> {
               ),
               SizedBox(height: 10),
               Container(
-                //    final consola_date = DateTime.now().toString().substring(0,19); Text(Hora_actual.toString())
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Container(
-                      child: Text("Inicio", style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
-                    ),
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
-                      child: Text(Hora_actual.toString()),
-                    ),
-                    Container(
-                      child: ElevatedButton(
-                        child: Text("Actualizar"),
-                        onPressed: (){
-                          setState(() {
-                            Hora_actual = DateTime.now().toString().substring(0,19);
-                          });
-                        },
-                        style: ElevatedButton.styleFrom(
-                            primary: Colors.black,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-SizedBox(height: 10),
-              Container(
                   padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
                   decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
                   child:Center(
@@ -204,7 +175,7 @@ SizedBox(height: 10),
                         controller: dateinput, //editing controller of this TextField
                         decoration: InputDecoration(
                             icon: Icon(Icons.calendar_today), //icon of text field
-                            labelText: "Ingrese hora de termino" //label text of field
+                            labelText: "Ingrese hora de inicio" //label text of field
                         ),
                         readOnly: true,  //set it true, so that user will not able to edit text
                         onTap: () async {

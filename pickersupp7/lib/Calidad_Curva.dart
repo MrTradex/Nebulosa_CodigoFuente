@@ -616,6 +616,7 @@ class _AuditoriaState extends State<Auditoria> {
       }
       if(lista_traspasable.isNotEmpty){
         DB.insert(Codigo(
+          id_Auditoria: "No Auditoria",
           Tipo_captura: "10",
           codigo_barra: texto_codigo,
           fecha_captura: consola_date,

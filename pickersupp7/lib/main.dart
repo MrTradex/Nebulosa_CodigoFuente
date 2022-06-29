@@ -897,6 +897,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
       DB.insert(Codigo(
+          id_Auditoria: "Sin Auditoria",
           Tipo_captura: 12,
           codigo_barra: codigo_recibido_pallet_M,
           fecha_captura: consola_date,

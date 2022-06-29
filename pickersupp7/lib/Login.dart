@@ -76,7 +76,7 @@ class _SecondRouteState extends State<SecondRoute> {
                     Positioned(
                       child: Container(
                         child: Center(
-                          child: Text("Nebulosa Scanner" + "\n"+ "1.0.0", style: TextStyle(color: Colors.white, fontSize: 40, fontWeight: FontWeight.bold)),
+                          child: Text("Nebulosa Scanner" + "\n"+ "V1.1", style: TextStyle(color: Colors.white, fontSize: 40, fontWeight: FontWeight.bold)),
                           //child: Text(valor_locacion.toString(), style: TextStyle(color: Colors.white, fontSize: 40, fontWeight: FontWeight.bold)),
                         ),
                       ),
@@ -262,7 +262,7 @@ class _SecondRouteState extends State<SecondRoute> {
 
   Inicializar_direccion_api(){
     setState(() {
-      URL = "http://sd-1894661-h00004.ferozo.net/api/";
+      URL = "http://164.77.174.74/api/";
     });
   }
   Notificador_no_internet(){
@@ -333,8 +333,10 @@ class _SecondRouteState extends State<SecondRoute> {
 
       int api_disponible = await DB.sacar_api();
       if(api_disponible == 0){
-        URL = "http://sd-1894661-h00004.ferozo.net/api/";
-        await DB.insertar_api("http://sd-1894661-h00004.ferozo.net/api/");
+        URL = "http://164.77.174.74/api/";
+        //URL = "http://sd-1894661-h00004.ferozo.net/api/";
+        //await DB.insertar_api("http://sd-1894661-h00004.ferozo.net/api/");
+        await DB.insertar_api("http://164.77.174.74/api/");
       }
 
       //URL = api_nueva[0]["direccion_api"].toString();

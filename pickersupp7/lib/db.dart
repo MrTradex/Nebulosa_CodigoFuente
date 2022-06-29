@@ -11,7 +11,7 @@ class DB {
     return openDatabase(join(await getDatabasesPath(),'Codigos.db'),
         onCreate: (db, version) async {
           await db.execute(
-              "CREATE TABLE codigos (Id_base_datos INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, Tipo_captura INT, codigo_barra TEXT, fecha_captura DATETIME, desc VARCHAR(30), razon_falla VARCHAR (50), sincro INT, tipo_pallet TEXT, Estado_pallets TEXT, cantidad TEXT)"
+              "CREATE TABLE codigos (Id_base_datos INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,id_Auditoria VARCHAR(10), Tipo_captura INT, codigo_barra TEXT, fecha_captura DATETIME, desc VARCHAR(30), razon_falla VARCHAR (50), sincro INT, tipo_pallet TEXT, Estado_pallets TEXT, cantidad TEXT)"
           );
           await db.execute("CREATE TABLE usuarios (cookie VARCHAR(50), usuario VARCHAR(30), pass VARCHAR(30))");
           await db.execute("CREATE TABLE guid (guid_id VARCHAR(100))");
@@ -90,6 +90,14 @@ class DB {
 
   }
   //----------------------Auditoria---------------------------------------
+  //---------------------Comandos Auditoria-------------------------------
+  static Obtener_idAuditoria() async {
+    Database database = await _openDB();
+    final List<Map<String, dynamic>> codigosMap = await database.rawQuery("SELECT id_auditoria from auditoria ");
+    List lista = codigosMap.toList();
+    return lista[0];
+  }
+  //---------------------Comandos Auditoria-------------------------------
 
   static insertar_estado(String estado_actual) async {
     Database database = await _openDB();
@@ -216,6 +224,7 @@ class DB {
 
     return List.generate(codigosMap.length,
             (i) => Codigo(
+                id_Auditoria: codigosMap[i]['id_Auditoria'],
             Tipo_captura: codigosMap[i]['Tipo_captura'],
             codigo_barra: codigosMap[i]['codigo_barra'],
             fecha_captura: codigosMap[i]['fecha_captura'],
@@ -237,6 +246,7 @@ class DB {
     List<Codigo> lista_enviable_sincronizados = [];
     listita =  List.generate(codigosMap.length,
             (i) => Codigo(
+                id_Auditoria: codigosMap[i]['id_Auditoria'],
             Tipo_captura: codigosMap[i]['id_campo'],
             codigo_barra: codigosMap[i]['codigo'],
             fecha_captura: codigosMap[i]['fecha'],

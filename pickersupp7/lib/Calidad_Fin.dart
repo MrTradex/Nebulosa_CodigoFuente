@@ -50,6 +50,8 @@ class _Calidad_FinState extends State<Calidad_Fin> {
   List _listaTipos = ["23 - RU STANDRD","12 - RU NEW","10 - RU NEWS PS",
     "8 - AI","5 AD","1 AR","18 AW","20 AP","22 AT","16 NA SCRAP"];
   List _listaTipos_2 = ["B1210 - 01", "B4840 - M5", "B1208 - 03"];
+  List _lista_Trabajadores = ["JORDAN ISAAC ZAPATA CORREA", "OTRO TRABAJADOR", "OTRO TRABAJADOR"];
+  String vista_trabajador = "Seleccione Encargado";
   List lista_codigos_tablas = [];
   String titulo_appbar = "";
   final textcontroller_cambiar_usuario_url = TextEditingController();
@@ -69,183 +71,200 @@ class _Calidad_FinState extends State<Calidad_Fin> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar( //esto es la barra superior que aparece en la pagina. en el log que muestra, no hay uno de estos porque no me sirve.
-          title: Text("Calidad Fin"), //con jerarquia, podemos colocar varibles a algunos atributos del widget
-          backgroundColor: Colors.black,
-        ),
-        body: Container( //el body es la estructura principal de la "base" por lo cual, sera lo principal donde se trabajará
-          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5), //ajustes de como se posociona en la pantalla.
-          decoration: BoxDecoration(color: Colors.black12), //me permite cambiar el color de fondo del container, que justamente es todo
+  Widget build(BuildContext context){
+    return Scaffold(   //Suele retornarse un scaffold como si fuese un ejecutable, realmente es la base de la pagina.
+      appBar: AppBar( //esto es la barra superior que aparece en la pagina. en el log que muestra, no hay uno de estos porque no me sirve.
+        title: Text("Calidad Fin"), //con jerarquia, podemos colocar varibles a algunos atributos del widget
+        backgroundColor: Colors.black,
+      ),
+      body: Container( //el body es la estructura principal de la "base" por lo cual, sera lo principal donde se trabajará
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5), //ajustes de como se posociona en la pantalla.
+        decoration: BoxDecoration(color: Colors.black12), //me permite cambiar el color de fondo del container, que justamente es todo
 
-          child: ListView( //dentro del container, puse un listview. este me permite crear una columna ajustable al tamaño de lo que coloques dentro.
-            children: [
-              Container(
-                child: Semaforo(),
+        child: ListView( //dentro del container, puse un listview. este me permite crear una columna ajustable al tamaño de lo que coloques dentro.
+          children: [
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+              decoration: BoxDecoration(color: Colors.white60, borderRadius: BorderRadius.circular(10)),
+              child: DropdownButton<String>(
+                items: _lista_Trabajadores.map((data) {
+                  return DropdownMenuItem<String>(
+                    value: data.toString(),
+                    child: Text(
+                      data,
+                    ),
+                  );
+                }).toList(),
+                onChanged: (_value)=> {
+                  setState((){
+                    FocusScope.of(context).requestFocus(focus_input_text);
+                    vista_trabajador = _value.toString();
+                    Future.delayed(
+                      Duration(),
+                          () => SystemChannels.textInput.invokeMethod('TextInput.hide'),
+                    );
+                  })
+                },
+                hint: Text(vista_trabajador),
+                iconEnabledColor: Colors.green,
+                icon: Icon(Icons.arrow_downward_sharp),
               ),
-              const SizedBox(height: 20),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
-                child: TextField(
-                  focusNode: focus_input_text,
-                  autofocus: true,
-                  onEditingComplete: _Empezar_CalidadFin,
-                  controller: textcontrollercodigo,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    hintText: 'Codigo Barra',
+            ),
+            SizedBox(height: 20),
+            Container(
+              child: Semaforo(),
+            ),
+            const SizedBox(height: 20),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
+              child: TextField(
+                focusNode: focus_input_text,
+                autofocus: true,
+                onEditingComplete: _Empezar_CalidadFin,
+                controller: textcontrollercodigo,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: 'Codigo Barra',
+                ),
+              ),
+            ),
+            const SizedBox(height: 25.0),
+            Container(
+              child: ElevatedButton(   //SEMAFORO
+                onPressed: () {
+                  _checkboxF = true;
+                  _Empezar_CalidadFin();
+                },
+                child: Text("NR"),
+                style: ElevatedButton.styleFrom(
+                  shape: CircleBorder(),
+                  padding: EdgeInsets.all(20),
+                  primary: Colors.white60, // <-- Button color
+                  onPrimary: Colors.red, // <-- Splash color
+                ),
+              ),
+            ),
+            SizedBox(height: 20),
+
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(color: Colors.white60, borderRadius: BorderRadius.circular(10)),
+              child: DropdownButton<String>(
+                items: _listaTipos.map((data) {
+                  return DropdownMenuItem<String>(
+                    value: data.toString(),
+                    child: Text(
+                      data,
+                    ),
+                  );
+                }).toList(),
+                onChanged: (_value)=> {
+                  setState((){
+                    FocusScope.of(context).requestFocus(focus_input_text);
+                    vista2 = _value.toString();
+                    Future.delayed(
+                      Duration(),
+                          () => SystemChannels.textInput.invokeMethod('TextInput.hide'),
+                    );
+                  })
+                },
+                hint: Text(vista2),
+                iconEnabledColor: Colors.green,
+                icon: Icon(Icons.arrow_downward_sharp),
+              ),
+            )
+          ],
+        ),
+      ),
+      drawer: Drawer(
+        child: Material(
+          color: Colors.black87,
+          child: ListView(
+            children: <Widget>[
+              UserAccountsDrawerHeader(
+                accountName: Text(Usuario_Detectado()),
+                accountEmail: Text(Dato_adicional()),
+                currentAccountPicture: GestureDetector(
+                  child: CircleAvatar(
+                    backgroundImage: AssetImage('images/barcode_scanner.png'),
                   ),
                 ),
-              ),
-              const SizedBox(height: 25.0),
-              Container(
-                child: NR(),
-              ),
-              SizedBox(height: 20),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                decoration: BoxDecoration(color: Colors.white60, borderRadius: BorderRadius.circular(10)),
-                child: DropdownButton<String>(
-                  items: _listaTipos.map((data) {
-                    return DropdownMenuItem<String>(
-                      value: data.toString(),
-                      child: Text(
-                        data,
-                      ),
-                    );
-                  }).toList(),
-                  onChanged: (_value)=> {
-                    setState((){
-                      FocusScope.of(context).requestFocus(focus_input_text);
-                      vista = _value.toString();
-                    })
-                  },
-                  hint: Text(vista),
-                  iconEnabledColor: Colors.green,
-                  icon: Icon(Icons.arrow_downward_sharp),
+                decoration: BoxDecoration(
+                    image: DecorationImage(
+                      fit: BoxFit.fill,
+                      image: AssetImage('images/background.png'),
+                    )
                 ),
               ),
+              const SizedBox(height: 10),
+              buildMenuItem(
+                  text: 'Calidad Curva',
+                  icon: Icons.assignment_turned_in_rounded,
+                  onClicked: () => selectedItem(context,1)
+              ),
+              const SizedBox(height: 5),
+              buildMenuItem(
+                  text: 'Calidad fin',
+                  icon: Icons.assignment_turned_in_outlined,
+                  onClicked: () => selectedItem(context,2)
+              ),
+              const SizedBox(height: 5),
+              buildMenuItem(
+                  text: 'Auditoria',
+                  icon: Icons.zoom_in,
+                  onClicked: () => selectedItem(context,3)
+              ),
+              const SizedBox(height: 5),
+              buildMenuItem(
+                  text: 'Reparación',
+                  icon: Icons.home_repair_service,
+                  onClicked: () => selectedItem(context,4)
+              ),
+              const SizedBox(height: 5),
+              buildMenuItem(
+                  text: 'Trazabilidad',
+                  icon: Icons.graphic_eq,
+                  onClicked: () => selectedItem(context,5)
+              ),
+              const SizedBox(height: 5),
+              buildMenuItem(
+                  text: 'Inventario de Maderas',
+                  icon: Icons.inventory,
+                  onClicked: () => selectedItem(context,6)
+              ),
+              const SizedBox(height: 5),
+              Divider(color: Colors.white70),
+              const SizedBox(height: 5),
 
-              const SizedBox(height: 15),
+              const SizedBox(height: 5),
+              buildMenuItem(
+                  text: 'Log de Escaneos',
+                  icon: Icons.looks,
+                  onClicked: () => selectedItem(context,7)
+              ),
 
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                decoration: BoxDecoration(color: Colors.white60, borderRadius: BorderRadius.circular(10)),
-                child: DropdownButton<String>(
-                  items: _listaTipos_2.map((data) {
-                    return DropdownMenuItem<String>(
-                      value: data.toString(),
-                      child: Text(
-                        data,
-                      ),
-                    );
-                  }).toList(),
-                  onChanged: (_value)=> {
-                    setState((){
-                      FocusScope.of(context).requestFocus(focus_input_text);
-                      vista2 = _value.toString();
-                    })
-                  },
-                  hint: Text(vista2),
-                  iconEnabledColor: Colors.green,
-                  icon: Icon(Icons.arrow_downward_sharp),
-                ),
-              )
+              buildMenuItem(
+                  text: 'Cambiar usuario',
+                  icon: Icons.supervised_user_circle_rounded,
+                  onClicked: () => selectedItem(context,8)
+              ),
+              buildMenuItem(
+                  text: 'Reiniciar BD',
+                  icon: Icons.refresh,
+                  onClicked: () => selectedItem(context,9)
+              ),
             ],
           ),
         ),
-        drawer: Drawer(
-          child: Material(
-            color: Colors.black87,
-            child: ListView(
-              children: <Widget>[
-                UserAccountsDrawerHeader(
-                  accountName: Text(Usuario_Detectado()),
-                  accountEmail: Text(Dato_adicional()),
-                  currentAccountPicture: GestureDetector(
-                    child: CircleAvatar(
-                      backgroundImage: AssetImage('images/barcode_scanner.png'),
-                    ),
-                  ),
-                  decoration: BoxDecoration(
-                      image: DecorationImage(
-                        fit: BoxFit.fill,
-                        image: AssetImage('images/background.png'),
-                      )
-                  ),
-                ),
-                const SizedBox(height: 10),
-                buildMenuItem(
-                    text: 'Calidad Curva',
-                    icon: Icons.assignment_turned_in_rounded,
-                    onClicked: () => selectedItem(context,1)
-                ),
-                const SizedBox(height: 5),
-                buildMenuItem(
-                    text: 'Calidad fin',
-                    icon: Icons.assignment_turned_in_outlined,
-                    onClicked: () => selectedItem(context,2)
-                ),
-                const SizedBox(height: 5),
-                buildMenuItem(
-                    text: 'Auditoria',
-                    icon: Icons.zoom_in,
-                    onClicked: () => selectedItem(context,3)
-                ),
-                const SizedBox(height: 5),
-                buildMenuItem(
-                    text: 'Reparación',
-                    icon: Icons.home_repair_service,
-                    onClicked: () => selectedItem(context,1)
-                ),
-                const SizedBox(height: 5),
-                buildMenuItem(
-                    text: 'Trazabilidad',
-                    icon: Icons.graphic_eq,
-                    onClicked: () => selectedItem(context,5)
-                ),
-                const SizedBox(height: 5),
-                buildMenuItem(
-                    text: 'Inventario de Maderas',
-                    icon: Icons.inventory,
-                    onClicked: () => selectedItem(context,6)
-                ),
-                const SizedBox(height: 5),
-                Divider(color: Colors.white70),
-                const SizedBox(height: 5),
-
-                const SizedBox(height: 5),
-                buildMenuItem(
-                    text: 'Log de Escaneos',
-                    icon: Icons.looks,
-                    onClicked: () => selectedItem(context,7)
-                ),
-
-                buildMenuItem(
-                    text: 'Cambiar usuario',
-                    icon: Icons.supervised_user_circle_rounded,
-                    onClicked: () => selectedItem(context,8)
-                ),
-                buildMenuItem(
-                    text: 'Reiniciar BD',
-                    icon: Icons.refresh,
-                    onClicked: () => selectedItem(context,9)
-                ),
-              ],
-            ),
-          ),
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed:() async {
-            //Mostrar_lista_escogidos();
-            //print(reportList);
-            print(lista_formato_de_id_de_fallas);
-          },
-        )
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed:() async {
+          List inprimirlista  = await DB.Mostrar_experimento_TODOS();
+          print(inprimirlista);
+        },
+      ),
     );
-
   } //---------------------------------------------------------------------------
   _showReportDialog() async {
     List<String> lista_utilizada = [];
@@ -314,6 +333,7 @@ class _Calidad_FinState extends State<Calidad_Fin> {
         texto_codigo = "NR";
       }
       DB.insert(Codigo(
+        id_Auditoria: "No Auditoria",
         Tipo_captura: "11",
         codigo_barra: texto_codigo,
         fecha_captura: consola_date,

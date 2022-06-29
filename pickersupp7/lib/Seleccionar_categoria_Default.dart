@@ -39,7 +39,7 @@ class _Seleccionar_categoriaState extends State<Seleccionar_categoria> {
   var Lista_de_modos = [
     "Auditoria",
     "Reparacion",
-    //"Calidad Fin",
+    "Calidad Fin",
     "Calidad Curva",
     "Trazabilidad",
     //"Inventario Maderas"

@@ -1,4 +1,5 @@
 class Codigo {
+  final id_Auditoria;
   final Tipo_captura;
   final codigo_barra;
   final fecha_captura;
@@ -9,12 +10,13 @@ class Codigo {
   final Estado_pallets;
   final cantidad;
 
-  Codigo({required this.Tipo_captura,required this.codigo_barra, //se inicializan las variables
+  Codigo({required this.id_Auditoria,required this.Tipo_captura,required this.codigo_barra, //se inicializan las variables
     required this.fecha_captura,required this.desc,required this.razon_falla,required this.sincro,
     required this.tipo_pallet ,required this.Estado_pallets,required this.cantidad}); //sino, dara error al momento de la declaracion de arriba
 
   Map<String, dynamic> toJson(){ //se convierte a "MAP" para que una vez pase a la base de datos se haga como
     return{                     //"""recorrible"""
+           'id_Auditoria': id_Auditoria,
            'Tipo_captura': Tipo_captura,
            'codigo_barra': codigo_barra, //en definitivas, es como una lista con los elementos que recien inicializamos.
            'fecha_captura': fecha_captura,
